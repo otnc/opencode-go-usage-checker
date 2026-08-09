@@ -5,6 +5,22 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-08-09
+
+### Changed
+
+- Usage thresholds tightened: the status bar and panel now turn amber at **70%** and red at
+  **90%** (was 80% / 95%), so warnings arrive earlier in each window.
+- Marketplace listing now ships a dedicated **`images/icon.png`** extension icon (a gauge at
+  ~70%), matching the layout used by `package-license-viewer`.
+
+### Fixed
+
+- `media/view.js` no longer reports a wall of `@ts-check` errors in the editor: JSDoc type
+  annotations were added for every function and the `ViewModel` / `Meter` / `SetupVm` / `Labels`
+  shapes, and `acquireVsCodeApi` is now declared with `@ts-ignore` since it is injected by VS
+  Code into the webview at runtime.
+
 ## [0.1.0] - 2026-08-09
 
 Initial release.
@@ -78,5 +94,6 @@ Initial release.
   happens.
 - Amounts and renewal dates are not available from this source, only percentages and reset times.
 
-[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.1
 [0.1.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.0
