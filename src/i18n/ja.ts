@@ -12,6 +12,12 @@ export const JA: LocaleBundle = {
   fetchFailed: "使用量を取得できませんでした",
   staleNotice: "以下は最後に取得できた値です。",
 
+  settingsTitle: "設定",
+  statusBarWindowLabel: "ステータスバーの枠",
+  languageLabel: "言語",
+  meterAutoLabel: "自動（最も逼迫している枠）",
+  openSettingsLabel: "設定を開く",
+
   meterLabel: {
     five_hour: "ローリング 5時間",
     calendar_week: "週間",

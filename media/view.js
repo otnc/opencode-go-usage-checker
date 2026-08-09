@@ -34,6 +34,24 @@
  */
 
 /**
+ * @typedef {Object} OptionVm
+ * @property {string} value
+ * @property {string} label
+ */
+
+/**
+ * @typedef {Object} SettingsVm
+ * @property {string} title
+ * @property {string} statusBarWindowLabel
+ * @property {string} languageLabel
+ * @property {OptionVm[]} meterOptions
+ * @property {OptionVm[]} languageOptions
+ * @property {string} currentMeter
+ * @property {string} currentLanguage
+ * @property {string} openSettingsLabel
+ */
+
+/**
  * @typedef {Object} ViewModel
  * @property {string} title
  * @property {"loading" | "ready" | "error" | "needsSetup"} kind
@@ -42,6 +60,7 @@
  * @property {string[]} footer
  * @property {boolean} stale
  * @property {SetupVm | null | undefined} setup
+ * @property {SettingsVm | null | undefined} settings
  * @property {Labels} labels
  */
 
@@ -77,6 +96,56 @@
     const node = /** @type {HTMLButtonElement} */ (el("button", className, label));
     node.addEventListener("click", () => vscode.postMessage({ type: messageType }));
     return node;
+  }
+
+  /**
+   * @param {OptionVm[]} options
+   * @param {string} currentValue
+   * @param {string} messageType
+   * @returns {HTMLSelectElement}
+   */
+  function select(options, currentValue, messageType) {
+    const node = /** @type {HTMLSelectElement} */ (el("select", "settings-select"));
+    for (const opt of options) {
+      const option = /** @type {HTMLOptionElement} */ (el("option", null, opt.label));
+      option.value = opt.value;
+      if (opt.value === currentValue) {
+        option.selected = true;
+      }
+      node.appendChild(option);
+    }
+    node.addEventListener("change", () =>
+      vscode.postMessage({ type: messageType, value: node.value }),
+    );
+    return node;
+  }
+
+  /**
+   * @param {SettingsVm} settings
+   * @returns {HTMLElement}
+   */
+  function renderSettings(settings) {
+    const section = el("section", "settings");
+
+    section.appendChild(el("h2", "settings-title", settings.title));
+
+    const meterRow = el("div", "settings-row");
+    meterRow.appendChild(el("label", "settings-label", settings.statusBarWindowLabel));
+    meterRow.appendChild(select(settings.meterOptions, settings.currentMeter, "selectMeter"));
+    section.appendChild(meterRow);
+
+    const langRow = el("div", "settings-row");
+    langRow.appendChild(el("label", "settings-label", settings.languageLabel));
+    langRow.appendChild(
+      select(settings.languageOptions, settings.currentLanguage, "selectLanguage"),
+    );
+    section.appendChild(langRow);
+
+    const actions = el("div", "actions");
+    actions.appendChild(button(settings.openSettingsLabel, "secondary", "openSettings"));
+    section.appendChild(actions);
+
+    return section;
   }
 
   /**
@@ -136,10 +205,7 @@
 
     if (vm.setup) {
       renderSetup(vm.setup, vm.labels);
-      return;
-    }
-
-    if (vm.meters.length === 0) {
+    } else if (vm.meters.length === 0) {
       root.appendChild(
         el("p", vm.kind === "error" ? "notice" : "hint", vm.message || vm.labels.loading),
       );
@@ -149,32 +215,36 @@
       );
       actions.appendChild(button(vm.labels.openConsole, "secondary", "openConsole"));
       root.appendChild(actions);
-      return;
+    } else {
+      if (vm.kind === "error" && vm.message) {
+        const notice = el("p", "notice");
+        notice.appendChild(el("div", null, vm.message));
+        notice.appendChild(el("div", null, vm.labels.staleNotice));
+        root.appendChild(notice);
+      }
+
+      const list = el("div", vm.stale ? "stale" : null);
+      vm.meters.forEach((meter) => list.appendChild(renderMeter(meter)));
+      root.appendChild(list);
+
+      if (vm.footer.length > 0) {
+        const footer = el("footer");
+        vm.footer.forEach((line) => footer.appendChild(el("div", null, line)));
+        root.appendChild(footer);
+      }
+
+      const actions = el("div", "actions");
+      actions.appendChild(
+        button(vm.kind === "error" ? vm.labels.retry : vm.labels.refresh, null, "refresh"),
+      );
+      actions.appendChild(button(vm.labels.openConsole, "secondary", "openConsole"));
+      root.appendChild(actions);
     }
 
-    if (vm.kind === "error" && vm.message) {
-      const notice = el("p", "notice");
-      notice.appendChild(el("div", null, vm.message));
-      notice.appendChild(el("div", null, vm.labels.staleNotice));
-      root.appendChild(notice);
+    // The settings section is always visible, regardless of state.
+    if (vm.settings) {
+      root.appendChild(renderSettings(vm.settings));
     }
-
-    const list = el("div", vm.stale ? "stale" : null);
-    vm.meters.forEach((meter) => list.appendChild(renderMeter(meter)));
-    root.appendChild(list);
-
-    if (vm.footer.length > 0) {
-      const footer = el("footer");
-      vm.footer.forEach((line) => footer.appendChild(el("div", null, line)));
-      root.appendChild(footer);
-    }
-
-    const actions = el("div", "actions");
-    actions.appendChild(
-      button(vm.kind === "error" ? vm.labels.retry : vm.labels.refresh, null, "refresh"),
-    );
-    actions.appendChild(button(vm.labels.openConsole, "secondary", "openConsole"));
-    root.appendChild(actions);
   }
 
   window.addEventListener("message", (event) => {

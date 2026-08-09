@@ -15,6 +15,13 @@ export interface Strings {
   fetchFailed: string;
   staleNotice: string;
 
+  // In-panel settings section.
+  settingsTitle: string;
+  statusBarWindowLabel: string;
+  languageLabel: string;
+  meterAutoLabel: string;
+  openSettingsLabel: string;
+
   meterLabel: Record<MeterKind, string>;
   meterShortLabel: Record<MeterKind, string>;
 

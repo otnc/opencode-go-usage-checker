@@ -1,13 +1,42 @@
 import * as vscode from "vscode";
 
 import { formatClock, formatCountdown, meterLabel } from "../format";
-import { Lang, strings } from "../i18n";
-import { orderedMeters, Severity, severityOf, UsageSnapshot, usedPercent } from "../meters";
+import { AUTO, Lang, LOCALES, strings } from "../i18n";
+import {
+  METER_KINDS,
+  orderedMeters,
+  Severity,
+  severityOf,
+  UsageSnapshot,
+  usedPercent,
+} from "../meters";
 import { UsageState } from "../usageStore";
+
+const SECTION = "opencodeGo";
 
 export interface UsageViewConfig {
   lang: Lang;
   consoleUrl: string;
+  /** Raw `opencodeGo.statusBar.meter` setting value. */
+  meterSetting: string;
+  /** Raw `opencodeGo.language` setting value. */
+  languageSetting: string;
+}
+
+interface OptionVM {
+  value: string;
+  label: string;
+}
+
+interface SettingsVM {
+  title: string;
+  statusBarWindowLabel: string;
+  languageLabel: string;
+  meterOptions: OptionVM[];
+  languageOptions: OptionVM[];
+  currentMeter: string;
+  currentLanguage: string;
+  openSettingsLabel: string;
 }
 
 interface MeterVM {
@@ -33,6 +62,8 @@ interface ViewModel {
   footer: string[];
   /** Present only in the `needsSetup` state. */
   setup: SetupVM | null;
+  /** In-panel settings section, always present. */
+  settings: SettingsVM;
   labels: {
     refresh: string;
     retry: string;
@@ -74,7 +105,7 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
     view.webview.html = this.buildHtml(view.webview);
 
     this.disposables.push(
-      view.webview.onDidReceiveMessage((message: { type?: string }) => {
+      view.webview.onDidReceiveMessage((message: { type?: string; value?: string }) => {
         switch (message?.type) {
           case "refresh":
             void vscode.commands.executeCommand("opencodeGo.refresh");
@@ -84,6 +115,23 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
             break;
           case "openConsole":
             void vscode.commands.executeCommand("opencodeGo.openConsole");
+            break;
+          case "openSettings":
+            void vscode.commands.executeCommand("workbench.action.openSettings", SECTION);
+            break;
+          case "selectMeter":
+            if (message.value) {
+              void vscode.workspace
+                .getConfiguration(SECTION)
+                .update("statusBar.meter", message.value, vscode.ConfigurationTarget.Global);
+            }
+            break;
+          case "selectLanguage":
+            if (message.value) {
+              void vscode.workspace
+                .getConfiguration(SECTION)
+                .update("language", message.value, vscode.ConfigurationTarget.Global);
+            }
             break;
           case "ready":
             this.post();
@@ -134,9 +182,18 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
   }
 
   private buildViewModel(): ViewModel {
-    const { lang } = this.getConfig();
+    const { lang, meterSetting, languageSetting } = this.getConfig();
     const s = strings(lang);
     const state = this.lastState;
+
+    const meterOptions: OptionVM[] = [
+      { value: "auto", label: s.meterAutoLabel },
+      ...METER_KINDS.map((kind) => ({ value: kind, label: meterLabel(kind, lang) })),
+    ];
+    const languageOptions: OptionVM[] = [
+      { value: AUTO, label: "Auto" },
+      ...LOCALES.map((l) => ({ value: l.code, label: l.label })),
+    ];
 
     const base: ViewModel = {
       kind: state.kind,
@@ -146,6 +203,16 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
       stale: false,
       footer: [],
       setup: null,
+      settings: {
+        title: s.settingsTitle,
+        statusBarWindowLabel: s.statusBarWindowLabel,
+        languageLabel: s.languageLabel,
+        meterOptions,
+        languageOptions,
+        currentMeter: meterSetting,
+        currentLanguage: languageSetting,
+        openSettingsLabel: s.openSettingsLabel,
+      },
       labels: {
         refresh: s.refresh,
         retry: s.retry,

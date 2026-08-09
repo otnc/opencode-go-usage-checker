@@ -13,6 +13,12 @@ export const EN: Strings = {
   fetchFailed: "Could not fetch usage",
   staleNotice: "Showing the last values that were fetched.",
 
+  settingsTitle: "Settings",
+  statusBarWindowLabel: "Status bar window",
+  languageLabel: "Language",
+  meterAutoLabel: "Auto (most constrained)",
+  openSettingsLabel: "Open settings",
+
   meterLabel: {
     five_hour: "Rolling 5 hours",
     calendar_week: "Weekly",

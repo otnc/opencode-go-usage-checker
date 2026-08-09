@@ -144,5 +144,5 @@ test("the language setting's enum stays in sync with the locale registry", () =>
     i18n.languageSettingLabels(),
     "package.json opencodeGo.language.enumItemLabels must match languageSettingLabels()",
   );
-  assert.equal(setting.default, "en", "English is the default language");
+  assert.equal(setting.default, "auto", "auto is the default language");
 });

@@ -20,6 +20,8 @@ interface Settings {
   statusBarEnabled: boolean;
   statusBarMeter: "auto" | MeterKind;
   lang: Lang;
+  /** Raw `opencodeGo.language` setting value ("auto" | "en" | "ja" …). */
+  languageRaw: string;
 }
 
 function readSettings(): Settings {
@@ -34,6 +36,7 @@ function readSettings(): Settings {
       (config.get<string>("statusBar.meter") as Settings["statusBarMeter"]) ?? "five_hour",
     // `auto` follows VS Code's own display language.
     lang: toLang(config.get<string>("language"), vscode.env.language),
+    languageRaw: config.get<string>("language") ?? "auto",
   };
 }
 
@@ -65,6 +68,8 @@ export function activate(context: vscode.ExtensionContext): void {
   const view = new UsageViewProvider(context.extensionUri, () => ({
     lang: currentSettings().lang,
     consoleUrl: consoleUrl(),
+    meterSetting: currentSettings().statusBarMeter,
+    languageSetting: currentSettings().languageRaw,
   }));
 
   const diagnostics = new Diagnostics(credentials, () => ({
