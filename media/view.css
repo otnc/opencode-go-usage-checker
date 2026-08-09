@@ -185,8 +185,9 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-/* In-panel settings section — meter selector, language selector, and a button
-   that opens the full VS Code settings page filtered to this extension. */
+/* In-panel settings section — meter selector, language selector, a button to
+   reconfigure the workspace/cookie, and one that opens the full VS Code
+   settings page filtered to this extension. */
 .settings {
   margin-top: 16px;
   padding-top: 12px;

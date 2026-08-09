@@ -123,9 +123,10 @@
 
   /**
    * @param {SettingsVm} settings
+   * @param {Labels} labels
    * @returns {HTMLElement}
    */
-  function renderSettings(settings) {
+  function renderSettings(settings, labels) {
     const section = el("section", "settings");
 
     section.appendChild(el("h2", "settings-title", settings.title));
@@ -143,6 +144,7 @@
     section.appendChild(langRow);
 
     const actions = el("div", "actions");
+    actions.appendChild(button(labels.reconnect, "secondary", "connectWorkspace"));
     actions.appendChild(button(settings.openSettingsLabel, "secondary", "openSettings"));
     section.appendChild(actions);
 
@@ -250,7 +252,7 @@
 
     // The settings section is always visible, regardless of state.
     if (vm.settings) {
-      root.appendChild(renderSettings(vm.settings));
+      root.appendChild(renderSettings(vm.settings, vm.labels));
     }
   }
 
