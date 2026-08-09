@@ -1,0 +1,119 @@
+name: release
+
+# Run this workflow manually and give it a version. It bumps package.json, builds the .vsix,
+# publishes it, then commits, tags and creates the GitHub Release.
+#
+# Publishing is skipped automatically when VSCE_PAT is absent, so this workflow is usable
+# before you have a token.
+#   VSCE_PAT  Azure DevOps PAT with the Marketplace > Manage scope
+#             https://marketplace.visualstudio.com/manage
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release: a semver bump (patch/minor/major/prerelease) or an explicit version (e.g. 0.2.0)"
+        required: true
+        default: patch
+      dry_run:
+        description: "Build and verify only; do not publish, commit or tag"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # push the version commit/tag and create the GitHub Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run check-types
+      - run: npm test
+
+      - name: Bump version
+        id: bump
+        run: |
+          OLD="$(node -p "require('./package.json').version")"
+          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version >/dev/null
+          NEW="$(node -p "require('./package.json').version")"
+          echo "version=v${NEW}" >> "$GITHUB_OUTPUT"
+          echo "raw=${NEW}" >> "$GITHUB_OUTPUT"
+          echo "vsix=opencode-go-usage-checker-${NEW}.vsix" >> "$GITHUB_OUTPUT"
+          if [ "$OLD" = "$NEW" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Version is already ${NEW}; skipping the bump commit but still releasing."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Prefer the hand-written CHANGELOG entry; the release step below falls back to
+      # generated notes when this version has none, so a missing entry never blocks a release.
+      - name: Render the release notes from CHANGELOG.md
+        run: |
+          node scripts/changelog-section.mjs "${{ steps.bump.outputs.raw }}" > RELEASE_NOTES.md || true
+          echo "--- release notes for ${{ steps.bump.outputs.version }} ---"
+          cat RELEASE_NOTES.md
+
+      # vsce package runs vscode:prepublish, which type-checks and does the production build
+      - name: Package extension
+        run: npx --yes @vscode/vsce package --out "${{ steps.bump.outputs.vsix }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: ${{ steps.bump.outputs.vsix }}
+          if-no-files-found: error
+
+      - name: Publish to VS Code Marketplace
+        if: ${{ !inputs.dry_run && env.VSCE_PAT != '' }}
+        run: npx --yes @vscode/vsce publish --packagePath "${{ steps.bump.outputs.vsix }}"
+
+      # Only tag once publishing succeeded, so a failed release leaves no dangling tag behind
+      - name: Commit, tag and push
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Only commit when the bump actually changed package.json; otherwise just tag and release.
+          if [ "${{ steps.bump.outputs.changed }}" = "true" ]; then
+            git commit -am "release: ${{ steps.bump.outputs.version }}"
+          fi
+          if ! git rev-parse -q --verify "refs/tags/${{ steps.bump.outputs.version }}" >/dev/null; then
+            git tag "${{ steps.bump.outputs.version }}"
+          fi
+          git push origin HEAD "${{ steps.bump.outputs.version }}"
+
+      - name: Create GitHub Release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -s RELEASE_NOTES.md ]; then
+            gh release create "${{ steps.bump.outputs.version }}" "${{ steps.bump.outputs.vsix }}" \
+              --title "${{ steps.bump.outputs.version }}" --notes-file RELEASE_NOTES.md
+          else
+            gh release create "${{ steps.bump.outputs.version }}" "${{ steps.bump.outputs.vsix }}" \
+              --title "${{ steps.bump.outputs.version }}" --generate-notes
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo "### ${{ steps.bump.outputs.vsix }}"
+            echo ""
+            echo "| Target | Status |"
+            echo "| --- | --- |"
+            echo "| VS Code Marketplace | ${{ !inputs.dry_run && env.VSCE_PAT != '' && 'published' || 'skipped' }} |"
+            echo "| Tag and GitHub Release | ${{ !inputs.dry_run && 'created' || 'skipped (dry run)' }} |"
+          } >> "$GITHUB_STEP_SUMMARY"

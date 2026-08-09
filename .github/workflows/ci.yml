@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Formatting does not vary by Node version, so it runs once rather than
+  # across the build matrix. Kept separate so "badly formatted" and "broken"
+  # are distinguishable at a glance on a PR.
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 20 is the floor VS Code ships; 22 is current LTS.
+        node-version: ["20.x", "22.x"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npm run check-types
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # Catches a version bump that forgot its changelog entry, on the PR
+      # rather than at release time.
+      - name: Render release notes for the current version
+        run: node scripts/changelog-section.mjs "$(node -p "require('./package.json').version")"
+
+      - name: Package (verifies the manifest and .vsix contents)
+        run: npx --yes @vscode/vsce package --out opencode-go-usage-checker.vsix
+
+      - name: Upload .vsix
+        if: matrix.node-version == '22.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-go-usage-checker-vsix
+          path: opencode-go-usage-checker.vsix
+          retention-days: 14
