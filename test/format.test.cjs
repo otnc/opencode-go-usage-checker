@@ -36,11 +36,11 @@ test("orders meters consistently and picks the most constrained one", () => {
   assert.equal(m.mostConstrained([]), undefined);
 });
 
-test("severity crosses at 80% and 95%", () => {
-  assert.equal(m.severityOf(meter("five_hour", 79)), "ok");
-  assert.equal(m.severityOf(meter("five_hour", 80)), "warn");
-  assert.equal(m.severityOf(meter("five_hour", 94)), "warn");
-  assert.equal(m.severityOf(meter("five_hour", 95)), "critical");
+test("severity crosses at 70% and 90%", () => {
+  assert.equal(m.severityOf(meter("five_hour", 69)), "ok");
+  assert.equal(m.severityOf(meter("five_hour", 70)), "warn");
+  assert.equal(m.severityOf(meter("five_hour", 89)), "warn");
+  assert.equal(m.severityOf(meter("five_hour", 90)), "critical");
 });
 
 test("percentages are clamped and never NaN", () => {
