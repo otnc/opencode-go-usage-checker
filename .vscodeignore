@@ -1,0 +1,21 @@
+.vscode/**
+.github/**
+src/**
+out/**
+test/**
+scripts/**
+node_modules/**
+.gitignore
+.prettierrc.json
+.prettierignore
+
+# Secrets. This is an exclude list, not an allow list, so an unlisted .env at
+# the root would be published inside the .vsix — where anyone could unzip it.
+.env
+.env.*
+esbuild.mjs
+tsconfig.json
+README.ja.md
+CONTRIBUTING.md
+**/*.map
+**/*.ts

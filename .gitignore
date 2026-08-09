@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+*.vsix
+
+# Secrets (PAT etc.) — never commit these. The template is the one exception,
+# and it must be re-included explicitly: `.env.*` matches `.env.example` too.
+.env
+.env.*
+!.env.example

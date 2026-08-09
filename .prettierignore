@@ -1,0 +1,18 @@
+# Build output and dependencies — not ours to format.
+node_modules/
+dist/
+out/
+*.vsix
+
+# Prose. Line breaks in the READMEs and the changelog are placed by hand to keep
+# the diffs readable; Prettier would reflow them on every save.
+*.md
+
+# Generated or externally-owned.
+package-lock.json
+media/*.svg
+LICENSE
+
+# Secrets — never rewritten, and never echoed into a --check diff.
+.env
+.env.*
