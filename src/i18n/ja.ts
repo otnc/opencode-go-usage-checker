@@ -17,6 +17,7 @@ export const JA: LocaleBundle = {
   languageLabel: "言語",
   meterAutoLabel: "自動（最も逼迫している枠）",
   openSettingsLabel: "設定を開く",
+  reconnectLabel: "workspace を再接続",
 
   meterLabel: {
     five_hour: "ローリング 5時間",

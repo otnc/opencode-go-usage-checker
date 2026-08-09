@@ -21,6 +21,7 @@ export interface Strings {
   languageLabel: string;
   meterAutoLabel: string;
   openSettingsLabel: string;
+  reconnectLabel: string;
 
   meterLabel: Record<MeterKind, string>;
   meterShortLabel: Record<MeterKind, string>;

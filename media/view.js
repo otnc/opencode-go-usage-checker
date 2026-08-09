@@ -31,6 +31,7 @@
  * @property {string} retry
  * @property {string} openConsole
  * @property {string} staleNotice
+ * @property {string} reconnect
  */
 
 /**
@@ -210,9 +211,12 @@
         el("p", vm.kind === "error" ? "notice" : "hint", vm.message || vm.labels.loading),
       );
       const actions = el("div", "actions");
-      actions.appendChild(
-        button(vm.kind === "error" ? vm.labels.retry : vm.labels.refresh, null, "refresh"),
-      );
+      if (vm.kind === "error") {
+        actions.appendChild(button(vm.labels.reconnect, null, "connectWorkspace"));
+        actions.appendChild(button(vm.labels.retry, "secondary", "refresh"));
+      } else {
+        actions.appendChild(button(vm.labels.refresh, null, "refresh"));
+      }
       actions.appendChild(button(vm.labels.openConsole, "secondary", "openConsole"));
       root.appendChild(actions);
     } else {
@@ -234,9 +238,12 @@
       }
 
       const actions = el("div", "actions");
-      actions.appendChild(
-        button(vm.kind === "error" ? vm.labels.retry : vm.labels.refresh, null, "refresh"),
-      );
+      if (vm.kind === "error") {
+        actions.appendChild(button(vm.labels.reconnect, null, "connectWorkspace"));
+        actions.appendChild(button(vm.labels.retry, "secondary", "refresh"));
+      } else {
+        actions.appendChild(button(vm.labels.refresh, null, "refresh"));
+      }
       actions.appendChild(button(vm.labels.openConsole, "secondary", "openConsole"));
       root.appendChild(actions);
     }

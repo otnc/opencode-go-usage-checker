@@ -70,6 +70,7 @@ interface ViewModel {
     openConsole: string;
     loading: string;
     staleNotice: string;
+    reconnect: string;
   };
 }
 
@@ -219,6 +220,7 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
         openConsole: s.openConsole,
         loading: s.loading,
         staleNotice: s.staleNotice,
+        reconnect: s.reconnectLabel,
       },
     };
 

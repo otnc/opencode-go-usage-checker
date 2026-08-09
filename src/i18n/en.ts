@@ -18,6 +18,7 @@ export const EN: Strings = {
   languageLabel: "Language",
   meterAutoLabel: "Auto (most constrained)",
   openSettingsLabel: "Open settings",
+  reconnectLabel: "Reconnect workspace",
 
   meterLabel: {
     five_hour: "Rolling 5 hours",
