@@ -43,10 +43,10 @@ export type Severity = "ok" | "warn" | "critical";
 
 export function severityOf(meter: UsageMeter): Severity {
   const fraction = usedFraction(meter);
-  if (fraction >= 0.95) {
+  if (fraction >= 0.9) {
     return "critical";
   }
-  if (fraction >= 0.8) {
+  if (fraction >= 0.7) {
     return "warn";
   }
   return "ok";
