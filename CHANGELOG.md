@@ -5,6 +5,23 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-08-09
+
+### Added
+
+- The usage panel now has an in-panel **settings section** with two dropdowns and a button:
+  - **Status bar window** — switch between `auto`, rolling 5 hours, weekly, and monthly without
+    leaving the panel. The change applies instantly to the status bar.
+  - **Language** — switch between `auto`, English, and Japanese. The panel re-renders in the
+    chosen language immediately.
+  - **Open settings** — jumps to the VS Code settings page filtered to `opencodeGo`, so every
+    option (refresh interval, base URL, workspace ID, …) is one click away.
+
+### Changed
+
+- The `opencodeGo.language` setting now defaults to **`auto`** (was `en`), so the panel follows
+  VS Code's display language out of the box instead of always starting in English.
+
 ## [0.2.0] - 2026-08-09
 
 ### Changed
@@ -105,7 +122,8 @@ Initial release.
   happens.
 - Amounts and renewal dates are not available from this source, only percentages and reset times.
 
-[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.1
 [0.2.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.0
 [0.1.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.1
 [0.1.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.0
