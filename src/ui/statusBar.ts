@@ -97,10 +97,8 @@ export class UsageStatusBar implements vscode.Disposable {
     }
 
     const percent = usedPercent(primary);
-    const short = config.meter === "auto" ? meterShortLabel(primary.kind, config.lang) : "";
-    this.item.text = short
-      ? `$(pulse) Go Usage ${short} ${percent}%`
-      : `$(pulse) Go Usage ${percent}%`;
+    const short = meterShortLabel(primary.kind, config.lang);
+    this.item.text = `$(pulse) Go Usage ${short} ${percent}%`;
 
     const severity = severityOf(primary);
     if (severity === "critical") {

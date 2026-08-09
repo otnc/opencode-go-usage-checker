@@ -25,8 +25,8 @@ English version: [README.md](README.md)
 
 ## 機能
 
-- **常に見える。** ステータスバーには最も逼迫している枠を表示するので、実際に止まる原因になる枠が
-  そのまま目に入ります。70% で黄、90% で赤に変わります。
+- **常に見える。** ステータスバーにはデフォルトでローリング5時間枠を表示します。`auto` にすると
+  最も逼迫している枠が表示されます。70% で黄、90% で赤に変わります。
 - **3枠まとめて確認。** ステータスバーをクリックするとパネルが開きます（ホバーならツールチップ）。
   各枠のバーと、回復までのカウントダウンが並びます。
 - **放っておいても最新。** 5分ごと、およびウィンドウに戻ったときに更新します。VS Code が
@@ -73,7 +73,7 @@ code --install-extension otoneko1102.opencode-go-usage-checker
 | --- | --- | --- |
 | `opencodeGo.language` | `en` | パネルとツールチップの言語。`auto` は VS Code の表示言語に追従 |
 | `opencodeGo.statusBar.enabled` | `true` | ステータスバー表示のオン/オフ |
-| `opencodeGo.statusBar.meter` | `auto` | 表示する枠。`auto` は最も逼迫している枠 |
+| `opencodeGo.statusBar.meter` | `five_hour` | 表示する枠: `five_hour` / `calendar_week` / `product_period` / `auto`（最も逼迫している枠） |
 | `opencodeGo.refreshInterval` | `300` | 自動更新の間隔（秒）。`0` で無効。60 未満は 60 に切り上げ |
 | `opencodeGo.workspaceId` | *(空)* | 取得対象の `wrk_…`。**workspace を接続**で設定 |
 | `opencodeGo.baseUrl` | `https://opencode.ai` | コンソールのオリジン。別デプロイを見る場合のみ変更 |

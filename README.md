@@ -25,8 +25,9 @@ Panel:
 
 ## Features
 
-- **Always visible.** The status bar shows whichever window is closest to its limit, so the one
-  that will actually stop you is the one you see. It turns amber at 70% and red at 90%.
+- **Always visible.** The status bar shows the rolling 5-hour window by default, or whichever
+  window you pick — `auto` follows the most constrained one. It turns amber at 70% and red at
+  90%.
 - **All three at a glance.** Click the status bar to open the panel, or hover for a tooltip
   breakdown — each window with a progress bar and a countdown to when it resets.
 - **Stays current on its own.** Refreshes every 5 minutes and whenever you come back to the
@@ -73,7 +74,7 @@ reconnect with a fresh one.
 | --- | --- | --- |
 | `opencodeGo.language` | `en` | Panel and tooltip language. `auto` follows VS Code's display language |
 | `opencodeGo.statusBar.enabled` | `true` | Show usage in the status bar |
-| `opencodeGo.statusBar.meter` | `auto` | Which window to show. `auto` picks the most constrained one |
+| `opencodeGo.statusBar.meter` | `five_hour` | Which window to show: `five_hour`, `calendar_week`, `product_period`, or `auto` (most constrained) |
 | `opencodeGo.refreshInterval` | `300` | Refresh interval in seconds. `0` disables it; values under 60 are rounded up |
 | `opencodeGo.workspaceId` | *(empty)* | The `wrk_…` to read. Set via **Connect workspace** |
 | `opencodeGo.baseUrl` | `https://opencode.ai` | Console origin. Only change this for a different deployment |

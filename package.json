@@ -123,7 +123,7 @@
         },
         "opencodeGo.statusBar.meter": {
           "type": "string",
-          "default": "auto",
+          "default": "five_hour",
           "enum": [
             "auto",
             "five_hour",

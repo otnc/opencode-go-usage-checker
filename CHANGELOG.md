@@ -5,6 +5,17 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-08-09
+
+### Changed
+
+- The status bar now defaults to the **rolling 5-hour** window instead of `auto`. The
+  `opencodeGo.statusBar.meter` setting still lets you pick `five_hour`, `calendar_week`,
+  `product_period`, or `auto` (most constrained), but the out-of-the-box choice is the window
+  that resets most often and is the one you usually want to watch.
+- The status bar always shows which window it is tracking — the short label (`5h` / `週` / `月` …)
+  now appears next to the percentage regardless of the `meter` setting, not only in `auto` mode.
+
 ## [0.1.1] - 2026-08-09
 
 ### Changed
@@ -94,6 +105,7 @@ Initial release.
   happens.
 - Amounts and renewal dates are not available from this source, only percentages and reset times.
 
-[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.0
 [0.1.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.1
 [0.1.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.0
