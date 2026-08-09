@@ -6,6 +6,7 @@ import {
   MeterKind,
   mostConstrained,
   orderedMeters,
+  Severity,
   severityOf,
   UsageMeter,
   usedPercent,
@@ -116,13 +117,16 @@ export class UsageStatusBar implements vscode.Disposable {
     const md = new vscode.MarkdownString(undefined, true);
     md.isTrusted = true;
     md.supportThemeIcons = true;
+    // Needed for the coloured <span> the bar renders as — without this the
+    // sanitizer would strip it down to plain text.
+    md.supportHtml = true;
     md.appendMarkdown(`**${s.title}**\n\n`);
 
     for (const meter of orderedMeters(meters)) {
       const percent = usedPercent(meter);
       const countdown = formatCountdown(meter.resetsAt, config.lang);
       md.appendMarkdown(
-        `${bar(percent)} **${percent}%** — ${escapeMarkdown(meterLabel(meter.kind, config.lang))}\n\n` +
+        `${bar(percent, severityOf(meter))} **${percent}%** — ${escapeMarkdown(meterLabel(meter.kind, config.lang))}\n\n` +
           (countdown ? `&nbsp;&nbsp;${escapeMarkdown(countdown)}\n\n` : ""),
       );
     }
@@ -132,11 +136,33 @@ export class UsageStatusBar implements vscode.Disposable {
   }
 }
 
-/** Twelve-cell text bar — MarkdownString tooltips can't render real progress bars. */
-function bar(percent: number): string {
+/**
+ * Twelve-cell bar, the filled portion coloured by severity.
+ *
+ * A status bar tooltip cannot render a real width-based progress bar: VS
+ * Code's markdown sanitizer keeps the `style` attribute only on `<span>`, and
+ * only for `color`/`background-color`/`border-radius` — nothing that affects
+ * layout survives. Colouring the block characters is the closest available
+ * approximation, wrapped in `<code>` (not backticks, which would render the
+ * `<span>` as literal text) to keep the monospace alignment.
+ */
+function bar(percent: number, severity: Severity): string {
   const cells = 12;
   const filled = Math.min(cells, Math.max(0, Math.round((percent / 100) * cells)));
-  return `\`${"█".repeat(filled)}${"░".repeat(cells - filled)}\``;
+  const filledText = "█".repeat(filled);
+  const emptyText = "░".repeat(cells - filled);
+  return `<code><span style="color:${severityColor(severity)};">${filledText}</span>${emptyText}</code>`;
+}
+
+function severityColor(severity: Severity): string {
+  switch (severity) {
+    case "critical":
+      return "var(--vscode-charts-red)";
+    case "warn":
+      return "var(--vscode-charts-yellow)";
+    case "ok":
+      return "var(--vscode-charts-green)";
+  }
 }
 
 function escapeMarkdown(text: string): string {
