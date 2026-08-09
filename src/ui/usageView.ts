@@ -87,6 +87,7 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
 
   constructor(
     private readonly extensionUri: vscode.Uri,
+    private readonly extensionId: string,
     private readonly getConfig: () => UsageViewConfig,
   ) {}
 
@@ -118,7 +119,10 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
             void vscode.commands.executeCommand("opencodeGo.openConsole");
             break;
           case "openSettings":
-            void vscode.commands.executeCommand("workbench.action.openSettings", SECTION);
+            void vscode.commands.executeCommand(
+              "workbench.action.openSettings",
+              `@ext:${this.extensionId}`,
+            );
             break;
           case "selectMeter":
             if (message.value) {

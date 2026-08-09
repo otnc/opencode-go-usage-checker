@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext): void {
     consoleUrl: consoleUrl(),
   }));
 
-  const view = new UsageViewProvider(context.extensionUri, () => ({
+  const view = new UsageViewProvider(context.extensionUri, context.extension.id, () => ({
     lang: currentSettings().lang,
     consoleUrl: consoleUrl(),
     meterSetting: currentSettings().statusBarMeter,
