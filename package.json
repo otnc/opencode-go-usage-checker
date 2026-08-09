@@ -25,6 +25,7 @@
     "quota",
     "limit"
   ],
+  "icon": "images/icon.png",
   "main": "./dist/extension.js",
   "activationEvents": [
     "onStartupFinished"
