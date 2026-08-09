@@ -5,6 +5,16 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-08-09
+
+### Changed
+
+- The in-panel **Open settings** button now jumps to the settings page filtered by
+  `@ext:otoneko1102.opencode-go-usage-checker` (the same filter VS Code itself uses for
+  "Extension Settings") instead of a plain `opencodeGo` text search, so it can no longer pick up
+  unrelated settings that happen to mention that word. The extension ID is read from the running
+  extension at activation time rather than hardcoded.
+
 ## [0.3.0] - 2026-08-09
 
 ### Added
@@ -130,7 +140,8 @@ Initial release.
   happens.
 - Amounts and renewal dates are not available from this source, only percentages and reset times.
 
-[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.3.1
 [0.3.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.3.0
 [0.2.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.1
 [0.2.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.0
