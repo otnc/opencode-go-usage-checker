@@ -1,0 +1,186 @@
+:root {
+  --bar-track: var(--vscode-progressBar-background, var(--vscode-editorWidget-border));
+  --bar-ok: var(--vscode-charts-green, #4caf50);
+  --bar-warn: var(--vscode-charts-yellow, #d9a300);
+  --bar-critical: var(--vscode-charts-red, #f14c4c);
+}
+
+body {
+  margin: 0;
+  padding: 12px 14px 16px;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background: transparent;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground);
+}
+
+.meter {
+  margin-bottom: 16px;
+}
+
+.meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.meter-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.meter-percent {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--vscode-descriptionForeground);
+}
+
+.meter.warn .meter-percent {
+  color: var(--bar-warn);
+}
+
+.meter.critical .meter-percent {
+  color: var(--bar-critical);
+  font-weight: 600;
+}
+
+.track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bar-track);
+  opacity: 0.999;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--bar-ok);
+  transition: width 240ms ease;
+}
+
+.meter.warn .fill {
+  background: var(--bar-warn);
+}
+
+.meter.critical .fill {
+  background: var(--bar-critical);
+}
+
+.meter-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  font-variant-numeric: tabular-nums;
+}
+
+.meter-detail .sep {
+  opacity: 0.5;
+}
+
+.notice {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--vscode-inputValidation-warningBackground, rgba(255, 204, 0, 0.1));
+  border: 1px solid var(--vscode-inputValidation-warningBorder, transparent);
+  color: var(--vscode-foreground);
+  overflow-wrap: anywhere;
+}
+
+/* A caveat about what the numbers mean — informational, not a failure. */
+.notice.caveat {
+  background: var(--vscode-inputValidation-infoBackground, rgba(100, 148, 237, 0.1));
+  border-color: var(--vscode-inputValidation-infoBorder, transparent);
+}
+
+.hint {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+}
+
+.stale {
+  opacity: 0.55;
+}
+
+footer {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.25));
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--vscode-descriptionForeground);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.setup-heading {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Numbered by the strings themselves, so the locale controls the numbering
+   style and the marker never disagrees with the translated text. */
+.steps {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--vscode-descriptionForeground);
+}
+
+button {
+  flex: 1 1 auto;
+  min-width: 96px;
+  padding: 5px 10px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+button:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+button.secondary {
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+}
+
+button.secondary:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+button:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
