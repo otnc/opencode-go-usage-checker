@@ -1,0 +1,186 @@
+{
+  "name": "opencode-go-usage-checker",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "version": "0.1.0",
+  "publisher": "otoneko1102",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/otnc/opencode-go-usage-checker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/otnc/opencode-go-usage-checker/issues"
+  },
+  "homepage": "https://github.com/otnc/opencode-go-usage-checker#readme",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "opencode",
+    "usage",
+    "quota",
+    "limit"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "opencodeGo",
+          "title": "%view.container.title%",
+          "icon": "media/opencode.svg"
+        }
+      ]
+    },
+    "views": {
+      "opencodeGo": [
+        {
+          "type": "webview",
+          "id": "opencodeGo.usageView",
+          "name": "%view.usage.name%",
+          "icon": "media/opencode.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "opencodeGo.showUsage",
+        "title": "%command.showUsage.title%",
+        "category": "OpenCode Go"
+      },
+      {
+        "command": "opencodeGo.refresh",
+        "title": "%command.refresh.title%",
+        "category": "OpenCode Go",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "opencodeGo.openConsole",
+        "title": "%command.openConsole.title%",
+        "category": "OpenCode Go"
+      },
+      {
+        "command": "opencodeGo.diagnostics",
+        "title": "%command.diagnostics.title%",
+        "category": "OpenCode Go"
+      },
+      {
+        "command": "opencodeGo.connectWorkspace",
+        "title": "%command.connectWorkspace.title%",
+        "category": "OpenCode Go"
+      },
+      {
+        "command": "opencodeGo.disconnectWorkspace",
+        "title": "%command.disconnectWorkspace.title%",
+        "category": "OpenCode Go"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "opencodeGo.refresh",
+          "when": "view == opencodeGo.usageView",
+          "group": "navigation"
+        },
+        {
+          "command": "opencodeGo.connectWorkspace",
+          "when": "view == opencodeGo.usageView",
+          "group": "1_workspace"
+        },
+        {
+          "command": "opencodeGo.disconnectWorkspace",
+          "when": "view == opencodeGo.usageView",
+          "group": "1_workspace"
+        },
+        {
+          "command": "opencodeGo.diagnostics",
+          "when": "view == opencodeGo.usageView",
+          "group": "9_debug"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "%config.title%",
+      "properties": {
+        "opencodeGo.refreshInterval": {
+          "type": "number",
+          "default": 300,
+          "minimum": 0,
+          "description": "%config.refreshInterval.description%"
+        },
+        "opencodeGo.statusBar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.statusBar.enabled.description%"
+        },
+        "opencodeGo.statusBar.meter": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "five_hour",
+            "calendar_week",
+            "product_period"
+          ],
+          "enumDescriptions": [
+            "%config.statusBar.meter.auto%",
+            "%config.statusBar.meter.fiveHour%",
+            "%config.statusBar.meter.calendarWeek%",
+            "%config.statusBar.meter.productPeriod%"
+          ],
+          "description": "%config.statusBar.meter.description%"
+        },
+        "opencodeGo.baseUrl": {
+          "type": "string",
+          "default": "https://opencode.ai",
+          "description": "%config.baseUrl.description%"
+        },
+        "opencodeGo.workspaceId": {
+          "type": "string",
+          "default": "",
+          "description": "%config.workspaceId.description%"
+        },
+        "opencodeGo.language": {
+          "type": "string",
+          "default": "en",
+          "enum": [
+            "auto",
+            "en",
+            "ja"
+          ],
+          "enumItemLabels": [
+            "Auto",
+            "English",
+            "日本語"
+          ],
+          "description": "%config.language.description%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run check-types && node esbuild.mjs --production",
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "check-types": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "tsc --outDir out && node --test",
+    "package": "npx --yes @vscode/vsce package",
+    "publish": "node scripts/publish.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "prettier": "3.9.6",
+    "typescript": "^5.6.0"
+  }
+}

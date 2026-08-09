@@ -1,0 +1,23 @@
+{
+  "extension.displayName": "OpenCode Go Usage Checker",
+  "extension.description": "OpenCode Go の 5時間 / 週間 / 月間 の使用量をステータスバーから確認します。",
+  "view.container.title": "OpenCode Go Usage",
+  "view.usage.name": "使用量",
+  "command.showUsage.title": "使用量を表示",
+  "command.refresh.title": "使用量を更新",
+  "command.openConsole.title": "コンソールをブラウザで開く",
+  "command.diagnostics.title": "診断情報を表示",
+  "command.connectWorkspace.title": "workspace を接続…",
+  "command.disconnectWorkspace.title": "workspace の接続を解除",
+  "config.title": "OpenCode Go Usage",
+  "config.refreshInterval.description": "自動更新の間隔（秒）。0 で自動更新を無効にします。60 未満は 60 に切り上げられます。",
+  "config.statusBar.enabled.description": "ステータスバーに使用量を表示します。",
+  "config.statusBar.meter.description": "ステータスバーに表示する枠。",
+  "config.statusBar.meter.auto": "最も逼迫している枠",
+  "config.statusBar.meter.fiveHour": "ローリング5時間",
+  "config.statusBar.meter.calendarWeek": "週間",
+  "config.statusBar.meter.productPeriod": "月間",
+  "config.baseUrl.description": "OpenCode workspace コンソールのオリジン。別のデプロイ先を参照する場合のみ変更してください。",
+  "config.workspaceId.description": "使用量を取得する workspace（コンソール URL の `wrk_…`）。コマンド「OpenCode Go: workspace を接続」からセッションクッキーと一緒に設定してください。クッキーはこの設定ではなく SecretStorage に保存されます。",
+  "config.language.description": "パネル・ツールチップ・通知の表示言語。「auto」は VS Code の表示言語に追従し、対応が無ければ英語になります。"
+}

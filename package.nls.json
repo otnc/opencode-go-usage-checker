@@ -1,0 +1,23 @@
+{
+  "extension.displayName": "OpenCode Go Usage Checker",
+  "extension.description": "Track your OpenCode Go 5-hour, weekly, and monthly usage limits from the status bar.",
+  "view.container.title": "OpenCode Go Usage",
+  "view.usage.name": "Usage",
+  "command.showUsage.title": "Show usage",
+  "command.refresh.title": "Refresh usage",
+  "command.openConsole.title": "Open console in browser",
+  "command.diagnostics.title": "Show diagnostics",
+  "command.connectWorkspace.title": "Connect workspace…",
+  "command.disconnectWorkspace.title": "Disconnect workspace",
+  "config.title": "OpenCode Go Usage",
+  "config.refreshInterval.description": "How often to refresh, in seconds. Set to 0 to disable automatic refresh. Values below 60 are rounded up to 60.",
+  "config.statusBar.enabled.description": "Show usage in the status bar.",
+  "config.statusBar.meter.description": "Which window the status bar shows.",
+  "config.statusBar.meter.auto": "Whichever window is closest to its limit",
+  "config.statusBar.meter.fiveHour": "Rolling 5 hours",
+  "config.statusBar.meter.calendarWeek": "Weekly",
+  "config.statusBar.meter.productPeriod": "Monthly",
+  "config.baseUrl.description": "Origin of the OpenCode workspace console. Only change this if you are pointing at a different deployment.",
+  "config.workspaceId.description": "Workspace to read usage from (the `wrk_…` in your console URL). Set it together with the session cookie via the \"OpenCode Go: Connect workspace\" command; the cookie is kept in SecretStorage, not here.",
+  "config.language.description": "Language for the panel, tooltips, and notifications. \"auto\" follows VS Code's display language and falls back to English."
+}
