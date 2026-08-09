@@ -12,7 +12,7 @@ Initial release.
 ### Usage at a glance
 
 - A status bar item shows whichever OpenCode Go window is closest to its limit — rolling 5 hours,
-  weekly, or monthly — turning amber at 80% and red at 95%. Hovering breaks down all three
+  weekly, or monthly — turning amber at 70% and red at 90%. Hovering breaks down all three
   windows; clicking opens the panel.
 - The activity bar panel renders each window as a progress bar with a "resets in …" countdown, so
   the answer to "can I keep going?" does not require a trip to the browser.

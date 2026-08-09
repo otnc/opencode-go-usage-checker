@@ -26,7 +26,7 @@ Panel:
 ## Features
 
 - **Always visible.** The status bar shows whichever window is closest to its limit, so the one
-  that will actually stop you is the one you see. It turns amber at 80% and red at 95%.
+  that will actually stop you is the one you see. It turns amber at 70% and red at 90%.
 - **All three at a glance.** Click the status bar to open the panel, or hover for a tooltip
   breakdown — each window with a progress bar and a countdown to when it resets.
 - **Stays current on its own.** Refreshes every 5 minutes and whenever you come back to the
