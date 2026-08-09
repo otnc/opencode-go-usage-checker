@@ -5,6 +5,14 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-09
+
+### Added
+
+- The in-panel settings section now always has a **Reconnect workspace** button, not only when
+  disconnected or erroring — the workspace ID and `auth` cookie can be re-entered from the panel
+  at any time, without waiting for the connection to fail first.
+
 ## [0.2.1] - 2026-08-09
 
 ### Added
@@ -122,7 +130,8 @@ Initial release.
   happens.
 - Amounts and renewal dates are not available from this source, only percentages and reset times.
 
-[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.3.0
 [0.2.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.1
 [0.2.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.0
 [0.1.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.1.1
