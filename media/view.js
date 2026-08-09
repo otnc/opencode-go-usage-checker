@@ -6,10 +6,56 @@
  * so this file only builds DOM. Nothing here uses innerHTML — all text goes in
  * via textContent, which keeps the strict CSP honest.
  */
+
+/**
+ * @typedef {Object} Meter
+ * @property {string} kind
+ * @property {string} label
+ * @property {number} percent
+ * @property {"ok" | "warn" | "critical"} severity
+ * @property {string | null | undefined} countdown
+ */
+
+/**
+ * @typedef {Object} SetupVm
+ * @property {string} heading
+ * @property {string} hint
+ * @property {string[]} steps
+ * @property {string} connect
+ */
+
+/**
+ * @typedef {Object} Labels
+ * @property {string} loading
+ * @property {string} refresh
+ * @property {string} retry
+ * @property {string} openConsole
+ * @property {string} staleNotice
+ */
+
+/**
+ * @typedef {Object} ViewModel
+ * @property {string} title
+ * @property {"loading" | "ready" | "error" | "needsSetup"} kind
+ * @property {string | null | undefined} message
+ * @property {Meter[]} meters
+ * @property {string[]} footer
+ * @property {boolean} stale
+ * @property {SetupVm | null | undefined} setup
+ * @property {Labels} labels
+ */
+
 (function () {
+  // @ts-ignore — injected by VS Code into the webview at runtime
   const vscode = acquireVsCodeApi();
   const root = /** @type {HTMLElement} */ (document.getElementById("root"));
 
+  /**
+   * @param {keyof HTMLElementTagNameMap} tag
+   * @param {string | null} [className]
+   * @param {string | null} [text]
+   * @returns {HTMLElement}
+   */
   function el(tag, className, text) {
     const node = document.createElement(tag);
     if (className) {
@@ -21,12 +67,22 @@
     return node;
   }
 
+  /**
+   * @param {string} label
+   * @param {string | null} className
+   * @param {string} messageType
+   * @returns {HTMLButtonElement}
+   */
   function button(label, className, messageType) {
-    const node = el("button", className, label);
+    const node = /** @type {HTMLButtonElement} */ (el("button", className, label));
     node.addEventListener("click", () => vscode.postMessage({ type: messageType }));
     return node;
   }
 
+  /**
+   * @param {Meter} meter
+   * @returns {HTMLElement}
+   */
   function renderMeter(meter) {
     const wrap = el("section", `meter ${meter.severity}`);
 
@@ -52,27 +108,34 @@
     return wrap;
   }
 
-  /** First-run screen: what this needs, and the three places to get it. */
-  function renderSetup(vm) {
-    root.appendChild(el("h2", "setup-heading", vm.setup.heading));
-    root.appendChild(el("p", "hint", vm.setup.hint));
+  /**
+   * First-run screen: what this needs, and the three places to get it.
+   * @param {SetupVm} setup
+   * @param {Labels} labels
+   */
+  function renderSetup(setup, labels) {
+    root.appendChild(el("h2", "setup-heading", setup.heading));
+    root.appendChild(el("p", "hint", setup.hint));
 
     const steps = el("ol", "steps");
-    vm.setup.steps.forEach((step) => steps.appendChild(el("li", null, step)));
+    setup.steps.forEach((step) => steps.appendChild(el("li", null, step)));
     root.appendChild(steps);
 
     const actions = el("div", "actions");
-    actions.appendChild(button(vm.setup.connect, null, "connectWorkspace"));
-    actions.appendChild(button(vm.labels.openConsole, "secondary", "openConsole"));
+    actions.appendChild(button(setup.connect, null, "connectWorkspace"));
+    actions.appendChild(button(labels.openConsole, "secondary", "openConsole"));
     root.appendChild(actions);
   }
 
+  /**
+   * @param {ViewModel} vm
+   */
   function render(vm) {
     root.textContent = "";
     root.appendChild(el("h1", null, vm.title));
 
     if (vm.setup) {
-      renderSetup(vm);
+      renderSetup(vm.setup, vm.labels);
       return;
     }
 
