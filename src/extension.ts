@@ -30,7 +30,8 @@ function readSettings(): Settings {
     refreshIntervalSeconds: config.get<number>("refreshInterval") ?? 300,
     workspaceId: (config.get<string>("workspaceId") ?? "").trim(),
     statusBarEnabled: config.get<boolean>("statusBar.enabled") ?? true,
-    statusBarMeter: (config.get<string>("statusBar.meter") as Settings["statusBarMeter"]) ?? "five_hour",
+    statusBarMeter:
+      (config.get<string>("statusBar.meter") as Settings["statusBarMeter"]) ?? "five_hour",
     // `auto` follows VS Code's own display language.
     lang: toLang(config.get<string>("language"), vscode.env.language),
   };
