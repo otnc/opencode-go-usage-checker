@@ -72,7 +72,7 @@ reconnect with a fresh one.
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `opencodeGo.language` | `en` | Panel and tooltip language. `auto` follows VS Code's display language |
+| `opencodeGo.language` | `auto` | Panel and tooltip language. `auto` follows VS Code's display language |
 | `opencodeGo.statusBar.enabled` | `true` | Show usage in the status bar |
 | `opencodeGo.statusBar.meter` | `five_hour` | Which window to show: `five_hour`, `calendar_week`, `product_period`, or `auto` (most constrained) |
 | `opencodeGo.refreshInterval` | `300` | Refresh interval in seconds. `0` disables it; values under 60 are rounded up |

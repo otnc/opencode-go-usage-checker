@@ -71,7 +71,7 @@ code --install-extension otoneko1102.opencode-go-usage-checker
 
 | 設定 | 既定値 | 説明 |
 | --- | --- | --- |
-| `opencodeGo.language` | `en` | パネルとツールチップの言語。`auto` は VS Code の表示言語に追従 |
+| `opencodeGo.language` | `auto` | パネルとツールチップの言語。`auto` は VS Code の表示言語に追従 |
 | `opencodeGo.statusBar.enabled` | `true` | ステータスバー表示のオン/オフ |
 | `opencodeGo.statusBar.meter` | `five_hour` | 表示する枠: `five_hour` / `calendar_week` / `product_period` / `auto`（最も逼迫している枠） |
 | `opencodeGo.refreshInterval` | `300` | 自動更新の間隔（秒）。`0` で無効。60 未満は 60 に切り上げ |
