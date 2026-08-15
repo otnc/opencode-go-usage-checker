@@ -135,21 +135,30 @@ export class UsageStatusBar implements vscode.Disposable {
 }
 
 /**
- * Twelve-cell bar, the filled portion coloured by severity.
+ * Solid-looking progress bar built from `&nbsp;` runs in coloured `<span>`s.
  *
  * A status bar tooltip cannot render a real width-based progress bar: VS
  * Code's markdown sanitizer keeps the `style` attribute only on `<span>`, and
  * only for `color`/`background-color`/`border-radius` — nothing that affects
- * layout survives. Colouring the block characters is the closest available
- * approximation, wrapped in `<code>` (not backticks, which would render the
- * `<span>` as literal text) to keep the monospace alignment.
+ * layout survives, so there is no CSS `width` to fill. Block-character glyphs
+ * (█░) are one way to fake it, but read as text — visible gaps between
+ * glyphs. Packing many `&nbsp;` cells at a small font size and painting them
+ * with `background-color` instead reads as a continuous bar: an outer span
+ * paints the full track, an inner span paints the filled portion on top of
+ * it, and the character-cell resolution (30 of them) is fine enough that the
+ * seams disappear.
  */
 function bar(percent: number, severity: Severity): string {
-  const cells = 12;
+  const cells = 30;
   const filled = Math.min(cells, Math.max(0, Math.round((percent / 100) * cells)));
-  const filledText = "█".repeat(filled);
-  const emptyText = "░".repeat(cells - filled);
-  return `<code><span style="color:${severityColor(severity)};">${filledText}</span>${emptyText}</code>`;
+  const empty = cells - filled;
+  const nbsp = (n: number) => "&nbsp;".repeat(n);
+  return (
+    `<span style="background-color:var(--vscode-badge-background);font-size:48%;border-radius:3px;">` +
+    `<span style="background-color:${severityColor(severity)};border-radius:3px;">${nbsp(filled)}</span>` +
+    `${nbsp(empty)}` +
+    `</span>`
+  );
 }
 
 function severityColor(severity: Severity): string {
