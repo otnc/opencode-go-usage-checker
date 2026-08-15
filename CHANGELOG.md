@@ -5,6 +5,16 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-08-15
+
+### Changed
+
+- The per-window bars in the status bar's hover tooltip no longer look like text. They were built
+  from coloured block-character glyphs (█░), which show visible seams between characters; they are
+  now packed `&nbsp;` cells painted with `background-color` at a small font size, which reads as a
+  single continuous bar under the same VS Code markdown-sanitizer constraints (no CSS `width` on a
+  `<span>` survives, so there is still no real width-based bar to lean on).
+
 ## [0.3.1] - 2026-08-09
 
 ### Changed
@@ -140,7 +150,8 @@ Initial release.
   happens.
 - Amounts and renewal dates are not available from this source, only percentages and reset times.
 
-[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/otnc/opencode-go-usage-checker/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.3.2
 [0.3.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.3.1
 [0.3.0]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.3.0
 [0.2.1]: https://github.com/otnc/opencode-go-usage-checker/releases/tag/v0.2.1
