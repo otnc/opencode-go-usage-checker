@@ -11,7 +11,7 @@ const WORKSPACE_ID_PATTERN = /^wrk_[0-9A-Za-z]{8,}$/;
 
 /**
  * Collects the two things the workspace console needs: the id from the URL and
- * the browser's `auth` cookie. The cookie prompt is masked and the value goes
+ * the browser's session cookie. The cookie prompt is masked and the value goes
  * straight to SecretStorage — it is a live session, not a setting.
  */
 export class WorkspaceCommands {

@@ -46,9 +46,8 @@ code --install-extension otoneko1102.opencode-go-usage-checker
 **OpenCode Go: workspace を接続**（またはパネルのボタン）を実行し、次の2つを入力します。
 
 1. **workspace ID。** サインイン済みの状態で opencode.ai の workspace を開き、アドレスバーの
-   `wrk_…` の部分をコピーします: `opencode.ai/workspace/`**`wrk_…`**`/go`
-2. **`auth` クッキー。** そのページを開いたまま <kbd>F12</kbd> → Application → Storage →
-   Cookies → `https://opencode.ai` を選び、`auth` という行の **Value** をコピーします。
+   `wrk_…` の部分をコピーします: `opencode.ai/console/`**`wrk_…`**`/go`
+2. **セッションクッキー。** そのページを開いたまま <kbd>F12</kbd> → Application → Storage → Cookies → `https://opencode.ai` を選び、`__Host-console_session` という行の **Value** をコピーします。
 
 クッキーは VS Code の SecretStorage に保存され、設定ファイルには書き込みません。workspace ID は
 通常の設定項目です。**OpenCode Go: workspace の接続を解除** で両方を破棄できます。
@@ -62,10 +61,10 @@ code --install-extension otoneko1102.opencode-go-usage-checker
 | --- | --- |
 | `OpenCode Go: 使用量を表示` | パネルを開く（ステータスバーのクリック先） |
 | `OpenCode Go: 使用量を更新` | 手動で再取得 |
-| `OpenCode Go: workspace を接続…` | workspace ID と auth クッキーを設定 |
+| `OpenCode Go: workspace を接続…` | workspace ID とセッションクッキーを設定 |
 | `OpenCode Go: workspace の接続を解除` | 両方を破棄 |
 | `OpenCode Go: コンソールをブラウザで開く` | workspace のページを開く |
-| `OpenCode Go: 診断情報を表示` | ページから取れた内容と、解析した数値を並べて出力 |
+| `OpenCode Go: 診断情報を表示` | コンソールから取れた内容と、解析した数値を並べて出力 |
 
 ## 設定
 
@@ -80,25 +79,20 @@ code --install-extension otoneko1102.opencode-go-usage-checker
 
 ## 仕組みと、その代償
 
-OpenCode には公式な使用量 API がありません。`opencode.ai` は `/api/*` を一切提供しておらず、
-`/workspace/<wrk_…>/go` の画面は SolidStart のアプリで、データはサーバー関数経由で届きます。
-ただし、解決済みの値は配信される HTML にシリアライズされて埋め込まれています。
+OpenCode には公式に文書化された使用量 API がありません。workspace のコンソールはクライアント側で描画されるアプリで、内部の JSON エンドポイントから数値を読み込みます。この拡張機能は、あなたのセッションクッキーでその同じエンドポイントを呼び出します。
 
 ```
-rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}
+GET /console/api/go/status   (x-org-id: wrk_…)
+{ "access": { "meters": { "fiveHour": {…}, "week": {…}, "month": {…} } } }
 ```
 
-そこでこの拡張機能は、あなたのセッションクッキーでそのページを取得し、そこから数値を読み出します。
-これは **スクレイピング** であり、当然の帰結として次の制約があります。
+各メーターは使用量と上限を返すので、拡張機能がそこから % を計算します。これは **文書化されていないエンドポイント** であり、次の制約があります。
 
-- 取得できるのは **% とリセット時刻だけ** です。ページに金額が含まれないため、この拡張機能も
-  金額を表示しません。捏造することになるからです。
-- **ページの構造が変われば壊れます。** そのときは「使用量の値が含まれていなかった」と表示します。
-  自信ありげにゼロを出すことはしません。
+- 取得できるのは **% とリセット時刻だけ** です。金額は表示しません。
+- **エンドポイントが変わると壊れます。** そのときは「使用量の値が返らなかった」と表示します。自信ありげにゼロを出すことはしません。
 - **ブラウザのセッションクッキー** に依存するため、いずれ期限が切れます。
 
-セッション切れとページ構造の変化は、別々のエラーとして報告します。前者は新しいクッキー、後者は
-パーサの修正が必要で、対処が違うためです。
+セッション切れとエンドポイントの変更は、別々のエラーとして報告します。前者は新しいクッキー、後者はコードの修正が必要で、対処が違うためです。
 
 ## ライセンス
 

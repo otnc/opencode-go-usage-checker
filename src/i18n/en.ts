@@ -38,31 +38,31 @@ export const EN: Strings = {
   wsNoCredentials: "Connect a workspace to see your usage.",
   wsCookieExpired:
     "The workspace session has expired. Sign in to opencode.ai in your browser again, " +
-    "then reconnect with the new auth cookie.",
+    "then reconnect with the new session cookie.",
   wsNoPayload:
-    "The workspace page loaded but contained no usage figures. The page layout may have changed.",
+    "The console answered but returned no usage figures. This workspace may have no active Go plan, or the console API may have changed.",
 
   setupHeading: "Not connected yet",
   setupHint:
-    "Usage is read from your workspace console page, so this needs your workspace ID and " +
+    "Usage is read from the OpenCode console, so this needs your workspace ID and " +
     "the browser session cookie that goes with it. You will be asked for both in turn.",
   setupStep1: "1. Open your workspace in a browser, signed in.",
   setupStep2: "2. Copy the wrk_… ID out of the address bar.",
-  setupStep3: "3. Copy the `auth` cookie from DevTools.",
+  setupStep3: "3. Copy the `__Host-console_session` cookie from DevTools.",
   connectWorkspaceButton: "Connect workspace",
 
   wsConfigureTitle: "OpenCode Go: connect workspace",
   wsWorkspaceIdPrompt:
     "Workspace ID — open opencode.ai in your browser, go to your workspace, and copy the " +
-    "wrk_… segment from the address bar: opencode.ai/workspace/WRK_ID/go",
+    "wrk_… segment from the address bar: opencode.ai/console/WRK_ID/go",
   wsWorkspaceIdPlaceholder: "wrk_01ABCDEFGHIJKLMNOPQRSTUVWX",
   wsWorkspaceIdInvalid: "That does not look like a workspace ID (expected wrk_…).",
-  wsCookiePrompt: "The value of the `auth` cookie for opencode.ai",
+  wsCookiePrompt: "The value of the `__Host-console_session` cookie for opencode.ai",
   wsCookiePlaceholder: "paste the cookie value",
-  wsCookieRequired: "Paste the auth cookie value.",
+  wsCookieRequired: "Paste the session cookie value.",
   wsHowTo:
     "With opencode.ai open and signed in, press F12 → Application → Storage → Cookies → " +
-    "https://opencode.ai, select the row named `auth`, and copy its Value. " +
+    "https://opencode.ai, select the row named `__Host-console_session`, and copy its Value. " +
     "It is stored in VS Code's SecretStorage, never in a settings file.",
   wsConfigured: (workspaceId) => `OpenCode Go: reading usage from ${workspaceId}.`,
   wsCleared: "OpenCode Go: workspace disconnected.",

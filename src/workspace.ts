@@ -1,27 +1,28 @@
 /**
- * Reads usage from the workspace console at
- * `https://opencode.ai/workspace/<wrk_…>/go`.
+ * Reads usage from the workspace console.
  *
- * Why this exists: `opencode.ai` serves no REST API at all — the page is a
- * SolidStart app whose data arrives through server functions. What it *does*
- * do is serialise the resolved values into the delivered HTML, so the numbers
- * the screen shows are readable from the markup:
+ * The console used to be a server-rendered page whose HTML carried the numbers.
+ * It is now a client-rendered app (`/console/<wrk_…>/go`) that loads them from
+ * a JSON endpoint, so the extension calls that endpoint directly:
  *
- *     rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}
+ *     GET /console/api/go/status        x-org-id: wrk_…
+ *     { access: { meters: { fiveHour, week, month } } }
  *
- * That makes this a scrape, with everything that implies: it is authenticated
- * by the browser's own session cookie rather than a token, and a redesign of
- * the page will break it. Every failure here is typed so the UI can say which
- * of those happened instead of showing a bare zero.
+ * Each meter carries `usedMicroCents` and `limitMicroCents`; the percentage is
+ * derived from them. The endpoint is internal and undocumented, so a change to
+ * it will break this. Every failure here is typed so the UI can say which
+ * happened instead of showing a bare zero.
+ *
+ * Authentication is the console's own session cookie (`console_session`, or
+ * `__Host-console_session` over https), not a token.
  */
 
 import { MeterKind, UsageMeter } from "./meters";
 
-/** The three window names as the page serialises them. */
-const WINDOW_KEYS: { key: string; kind: MeterKind }[] = [
-  { key: "rollingUsage", kind: "five_hour" },
-  { key: "weeklyUsage", kind: "calendar_week" },
-  { key: "monthlyUsage", kind: "product_period" },
+const WINDOWS: { key: string; kind: MeterKind }[] = [
+  { key: "fiveHour", kind: "five_hour" },
+  { key: "week", kind: "calendar_week" },
+  { key: "month", kind: "product_period" },
 ];
 
 export type WorkspaceFailure =
@@ -31,7 +32,7 @@ export type WorkspaceFailure =
   /** The session cookie is missing, expired, or was rejected. */
   | { kind: "unauthorized" }
   | { kind: "http"; status: number }
-  /** The page loaded but carried no usage payload — a redesign, or a login wall. */
+  /** The endpoint answered but carried no usage figures — a changed response, or no active Go plan. */
   | { kind: "noPayload"; sawLogin: boolean };
 
 export class WorkspaceError extends Error {
@@ -43,30 +44,31 @@ export class WorkspaceError extends Error {
 
 export interface WorkspaceCredentials {
   workspaceId: string;
-  /** The `auth` cookie value, with or without the leading `auth=`. */
+  /** The session cookie value, or a full `name=value` pair. */
   authCookie: string;
 }
 
 const REQUEST_TIMEOUT_MS = 20_000;
 
-/**
- * A browser User-Agent. The console is a normal web page and answers requests
- * that look like a browser; this is not an attempt to hide what we are.
- */
-const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const SESSION_COOKIE = "__Host-console_session";
 
+/** The page a person opens in the browser. */
 export function workspaceUrl(workspaceId: string, origin = "https://opencode.ai"): string {
-  return `${origin.replace(/\/+$/, "")}/workspace/${encodeURIComponent(workspaceId)}/go`;
+  return `${origin.replace(/\/+$/, "")}/console/${encodeURIComponent(workspaceId)}/go`;
+}
+
+/** The JSON endpoint the console page itself reads. */
+export function statusUrl(origin = "https://opencode.ai"): string {
+  return `${origin.replace(/\/+$/, "")}/console/api/go/status`;
 }
 
 /** Normalises a pasted cookie into a `Cookie:` header value. */
 export function cookieHeader(authCookie: string): string {
   const trimmed = authCookie.trim().replace(/;$/, "");
-  return /^auth=/.test(trimmed) ? trimmed : `auth=${trimmed}`;
+  return trimmed.includes("=") ? trimmed : `${SESSION_COOKIE}=${trimmed}`;
 }
 
-/** Fetches the workspace page and extracts its three usage windows. */
+/** Fetches the workspace status and extracts its three usage windows. */
 export async function fetchWorkspaceUsage(
   credentials: WorkspaceCredentials,
   origin?: string,
@@ -76,7 +78,7 @@ export async function fetchWorkspaceUsage(
     throw new WorkspaceError({ kind: "noCredentials" });
   }
 
-  const url = workspaceUrl(credentials.workspaceId.trim(), origin);
+  const url = statusUrl(origin);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
@@ -85,11 +87,11 @@ export async function fetchWorkspaceUsage(
     response = await fetchImpl(url, {
       headers: {
         Cookie: cookieHeader(credentials.authCookie),
-        "User-Agent": USER_AGENT,
-        Accept: "text/html,application/xhtml+xml",
+        "x-org-id": credentials.workspaceId.trim(),
+        Accept: "application/json",
       },
       signal: controller.signal,
-      // A redirect to /auth/authorize is the signal that the cookie is dead —
+      // A redirect to the auth page is the signal that the cookie is dead —
       // following it would turn that into an unhelpful 200.
       redirect: "manual",
     });
@@ -119,91 +121,66 @@ export async function fetchWorkspaceUsage(
     throw new WorkspaceError({ kind: "http", status: response.status });
   }
 
-  const html = await response.text();
-  const meters = parseWorkspaceHtml(html);
-  if (meters.length === 0) {
-    // Being served the login page with a 200 is the common way for an expired
-    // cookie to present itself, so name that case rather than blaming the parser.
-    const sawLogin = /\/auth\/authorize|sign\s?in to opencode/i.test(html);
-    throw new WorkspaceError({ kind: "noPayload", sawLogin });
-  }
-  return meters;
-}
-
-/**
- * Pulls the serialised windows out of the page.
- *
- * Two shapes are in circulation — a `$R[n]` reference and a plain assignment —
- * and the key order inside the object is not guaranteed, so each field is
- * matched independently within the braces that follow the window's name.
- *
- * The search is confined to `<script>` bodies. A DOM library would buy nothing
- * here: the numbers are not in the markup, they are in serialised JavaScript,
- * and cheerio would only be a heavier way to reach the same script text. What
- * scoping does buy is that prose containing the word "monthlyUsage" cannot be
- * mistaken for the payload.
- */
-export function parseWorkspaceHtml(html: string, now = Date.now()): UsageMeter[] {
-  const meters: UsageMeter[] = [];
-  const haystack = scriptBodies(html) || html;
-
-  for (const { key, kind } of WINDOW_KEYS) {
-    const body = findObjectBody(haystack, key);
-    if (body === null) {
-      continue;
-    }
-
-    const percent = readNumber(body, "usagePercent");
-    if (percent === null) {
-      continue;
-    }
-    const resetInSec = readNumber(body, "resetInSec") ?? readNumber(body, "resetsInSeconds");
-
-    meters.push({
-      kind,
-      percent: Math.min(100, Math.max(0, percent)),
-      resetsAt:
-        resetInSec !== null && resetInSec > 0
-          ? new Date(now + resetInSec * 1000).toISOString()
-          : null,
-      status: readStatus(body),
+  const text = await response.text();
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    // A 200 that is not JSON is the login page or a changed route. Only the
+    // former is the session's fault.
+    throw new WorkspaceError({
+      kind: "noPayload",
+      sawLogin: /\/auth\/authorize|sign\s?in to opencode/i.test(text),
     });
   }
 
+  const meters = parseWorkspaceStatus(body);
+  if (meters.length === 0) {
+    throw new WorkspaceError({ kind: "noPayload", sawLogin: false });
+  }
   return meters;
 }
 
-/** The window's own `status:"…"`, narrowed to what we know how to show. */
-function readStatus(body: string): UsageMeter["status"] {
-  const match = /status\s*:\s*"([^"]*)"/.exec(body);
-  const value = match?.[1];
-  return value === "ok" || value === "error" ? value : "unknown";
-}
-
 /**
- * Every `<script>` body joined together, or "" when the page has none — in
- * which case the caller falls back to the whole document rather than deciding
- * the page is empty.
+ * Turns the status response into meters. A window without a positive limit has
+ * no meaningful percentage, so it is left out rather than shown as 0%.
  */
-function scriptBodies(html: string): string {
-  const bodies: string[] = [];
-  for (const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
-    bodies.push(match[1]);
+export function parseWorkspaceStatus(body: unknown, now = Date.now()): UsageMeter[] {
+  const windows = asRecord(asRecord(asRecord(body)?.access)?.meters);
+  if (!windows) {
+    return [];
   }
-  return bodies.join("\n");
+
+  const meters: UsageMeter[] = [];
+  for (const { key, kind } of WINDOWS) {
+    const w = asRecord(windows[key]);
+    const used = toNumber(w?.usedMicroCents);
+    const limit = toNumber(w?.limitMicroCents);
+    if (!w || used === null || limit === null || limit <= 0) {
+      continue;
+    }
+
+    const resetsAt = typeof w.resetsAt === "string" ? Date.parse(w.resetsAt) : NaN;
+    meters.push({
+      kind,
+      percent: Math.min(100, Math.max(0, (used / limit) * 100)),
+      resetsAt:
+        Number.isFinite(resetsAt) && resetsAt > now ? new Date(resetsAt).toISOString() : null,
+      status: "ok",
+    });
+  }
+  return meters;
 }
 
-/** The `{…}` that follows `<key>=` or `<key>:$R[n]=`, or null. */
-function findObjectBody(html: string, key: string): string | null {
-  const pattern = new RegExp(`${key}\\s*(?::\\s*\\$R\\[\\d+\\]\\s*)?=\\s*\\{([^{}]*)\\}`);
-  return pattern.exec(html)?.[1] ?? null;
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
-function readNumber(body: string, field: string): number | null {
-  const match = new RegExp(`${field}\\s*:\\s*(-?\\d+(?:\\.\\d+)?)`).exec(body);
-  if (!match) {
+/** Amounts may arrive as numbers or as numeric strings. */
+function toNumber(value: unknown): number | null {
+  if (typeof value !== "number" && typeof value !== "string") {
     return null;
   }
-  const value = Number(match[1]);
-  return Number.isFinite(value) ? value : null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
 }

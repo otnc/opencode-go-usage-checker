@@ -48,14 +48,14 @@ export class Diagnostics implements vscode.Disposable {
       const hasCookie = await this.workspace.hasCookie();
       line("Not connected.");
       line(`  workspaceId: ${id || "(empty)"}`);
-      line(`  auth cookie: ${hasCookie ? "stored" : "missing"}`);
+      line(`  session cookie: ${hasCookie ? "stored" : "missing"}`);
       line();
       line("Run “OpenCode Go: Connect workspace” to set both.");
       return;
     }
 
     line(`workspaceId: ${credentials.workspaceId}`);
-    line(`auth cookie: [${credentials.authCookie.length} chars]`);
+    line(`session cookie: [${credentials.authCookie.length} chars]`);
     line(`URL: ${workspaceUrl(credentials.workspaceId, origin)}`);
     line();
 
@@ -73,12 +73,12 @@ export class Diagnostics implements vscode.Disposable {
         );
       }
       line();
-      line("Compare these with the workspace page in your browser.");
-      line("If they differ, the page was probably served from a different session.");
+      line("Compare these with the console page in your browser.");
+      line("If they differ, the response probably came from a different session.");
     } catch (err) {
       line(`failed: ${describeError(err, lang)}`);
       line();
-      line("A dead session is the usual cause — reconnect with a fresh auth cookie.");
+      line("A dead session is the usual cause — reconnect with a fresh session cookie.");
     }
   }
 }

@@ -47,9 +47,8 @@ code --install-extension otoneko1102.opencode-go-usage-checker
 Run **OpenCode Go: Connect workspace** (or press the button in the panel) and give it two things:
 
 1. **Your workspace ID.** Open your workspace at opencode.ai while signed in and copy the `wrk_…`
-   segment out of the address bar: `opencode.ai/workspace/`**`wrk_…`**`/go`
-2. **Your `auth` cookie.** With that page open, press <kbd>F12</kbd> → Application → Storage →
-   Cookies → `https://opencode.ai`, select the row named `auth`, and copy its **Value**.
+   segment out of the address bar: `opencode.ai/console/`**`wrk_…`**`/go`
+2. **Your session cookie.** With that page open, press <kbd>F12</kbd> → Application → Storage → Cookies → `https://opencode.ai`, select the row named `__Host-console_session`, and copy its **Value**.
 
 The cookie is stored in VS Code's SecretStorage — never in a settings file. The workspace ID is an
 ordinary setting. **OpenCode Go: Disconnect workspace** removes both.
@@ -63,10 +62,10 @@ reconnect with a fresh one.
 | --- | --- |
 | `OpenCode Go: Show usage` | Open the panel (where the status bar click goes) |
 | `OpenCode Go: Refresh usage` | Fetch again now |
-| `OpenCode Go: Connect workspace…` | Set the workspace ID and the auth cookie |
+| `OpenCode Go: Connect workspace…` | Set the workspace ID and the session cookie |
 | `OpenCode Go: Disconnect workspace` | Forget both |
 | `OpenCode Go: Open console in browser` | Open your workspace page |
-| `OpenCode Go: Show diagnostics` | Print what the page yielded next to the parsed numbers |
+| `OpenCode Go: Show diagnostics` | Print what the console returned next to the parsed numbers |
 
 ## Settings
 
@@ -81,25 +80,20 @@ reconnect with a fresh one.
 
 ## How it works, and what that costs
 
-OpenCode publishes no usage API. `opencode.ai` serves no `/api/*` at all — the
-`/workspace/<wrk_…>/go` screen is a SolidStart app whose data arrives through server functions.
-What it does do is serialise the resolved values into the HTML it delivers:
+OpenCode publishes no documented usage API. The workspace console is a client-rendered app whose page loads its numbers from an internal JSON endpoint, and this extension calls that same endpoint with your session cookie:
 
 ```
-rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}
+GET /console/api/go/status   (x-org-id: wrk_…)
+{ "access": { "meters": { "fiveHour": {…}, "week": {…}, "month": {…} } } }
 ```
 
-So this extension fetches that page with your session cookie and reads the numbers out of it. That
-is a **scrape**, with the consequences you would expect:
+Each meter reports used and limit amounts, and the extension turns them into a percentage. That is an **undocumented endpoint**, with the consequences you would expect:
 
-- It reports **percentages and reset times only** — the page carries no amounts, so neither does
-  this extension. You will not see dollar figures, because inventing them would be a lie.
-- **A redesign of the page will break it.** When that happens the panel says the page carried no
-  usage figures, rather than showing a confident zero.
+- It shows **percentages and reset times only**. Dollar figures are not shown, because the extension has no reason to invent them.
+- **A change to the endpoint will break it.** When that happens the panel says the console returned no usage figures, rather than showing a confident zero.
 - It depends on a **browser session cookie**, which expires on its own schedule.
 
-An expired session and a changed page are reported as two different things, because the fix
-differs: one needs a fresh cookie, the other needs a new parser.
+An expired session and a changed endpoint are reported as two different things, because the fix differs: one needs a fresh cookie, the other needs a code change.
 
 ## License
 

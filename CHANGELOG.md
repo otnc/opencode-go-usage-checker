@@ -5,6 +5,17 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-09-21
+
+### Fixed
+
+- Usage can be read again after the OpenCode console was redesigned. The workspace page is now client-rendered and no longer embeds the numbers in its HTML, so the extension reads them from the console's `/console/api/go/status` endpoint instead. Percentages are derived from each window's used and limit amounts.
+- The workspace link now points at `/console/<wrk_…>/go`.
+
+### Changed
+
+- The console now uses a different session cookie. Reconnect the workspace and paste the value of `__Host-console_session` (previously `auth`). The old `auth` cookie is rejected as an expired session.
+
 ## [0.3.2] - 2026-08-15
 
 ### Changed

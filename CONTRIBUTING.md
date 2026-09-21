@@ -24,8 +24,8 @@ used for release notes. Nothing in the suite touches the network or your real cr
 
 | File | Role |
 | --- | --- |
-| `src/workspace.ts` | Fetching and parsing `opencode.ai/workspace/<wrk_…>/go` — the only source |
-| `src/workspaceCredentials.ts` | Workspace id (settings) and `auth` cookie (SecretStorage) |
+| `src/workspace.ts` | Fetching `opencode.ai/console/api/go/status` and deriving percentages — the only source |
+| `src/workspaceCredentials.ts` | Workspace id (settings) and session cookie (SecretStorage) |
 | `src/meters.ts` | The usage model: three windows, percentages, thresholds, ordering |
 | `src/usageStore.ts` | Single source of state, polling, focus handling |
 | `src/ui/statusBar.ts` | Status bar item and tooltip |
@@ -42,23 +42,18 @@ format` before committing.
 
 ## The source
 
-OpenCode publishes no usage API. `opencode.ai` serves no `/api/*` at all — every path returns the
-SolidStart 404 page — and `/workspace/<wrk_…>/go` is an app whose data arrives through server
-functions. It does serialise the resolved values into the delivered HTML, and that is what
-`src/workspace.ts` reads:
+OpenCode publishes no documented usage API. The workspace console (`/console/<wrk_…>/go`) is a client-rendered app that loads its numbers from an internal endpoint, and `src/workspace.ts` calls it directly with the session cookie and an `x-org-id` header:
 
-    rollingUsage:$R[12]={status:"ok",resetInSec:17400,usagePercent:42}
+    GET /console/api/go/status
+    { access: { meters: { fiveHour, week, month } } }   // each: usedMicroCents, limitMicroCents, resetsAt
 
-Two shapes are in circulation (a `$R[n]` reference and a plain assignment) and the key order inside
-the braces is not guaranteed, so each field is matched independently. The search is confined to
-`<script>` bodies — a DOM library would buy nothing, since the numbers are in serialised JavaScript
-rather than in markup.
+The percentage is `used / limit`. `month` has no `resetsAt`. When the console changes, find the new endpoint by reading the bundle under `/console/assets/` (the route definitions sit next to the schemas).
 
 Consequences worth keeping in mind when changing this code:
 
-- The page reports **no amounts**, so `UsageMeter` has no money in it. Adding a zeroed amount field
+- The extension surfaces **no amounts**, so `UsageMeter` has no money in it. Adding a zeroed amount field
   would put "$0.00" on screen and assert something never measured.
-- Failures are typed (`WorkspaceFailure`) because "your session died" and "the page changed" need
+- Failures are typed (`WorkspaceFailure`) because "your session died" and "the endpoint changed" need
   different fixes. Never collapse them into one message, and never let either become a silent 0%.
 - Authentication is a **browser session cookie**, not a token. It cannot be refreshed
   programmatically; it can only be re-pasted.
