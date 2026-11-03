@@ -1,5 +1,5 @@
 import { Lang, strings } from "./i18n";
-import { MeterKind } from "./meters";
+import { MeterKind, orderedMeters, UsageMeter, usedPercent } from "./meters";
 import { WorkspaceError } from "./workspace";
 
 export type { Lang } from "./i18n";
@@ -10,6 +10,17 @@ export function meterLabel(kind: MeterKind, lang: Lang): string {
 
 export function meterShortLabel(kind: MeterKind, lang: Lang): string {
   return strings(lang).meterShortLabel[kind] ?? kind;
+}
+
+/**
+ * "Go 5h 62% · Week 31% · Month 44%" — every window on one line, for the
+ * status bar. Empty when there is no window to show.
+ */
+export function statusBarMetersText(meters: UsageMeter[], lang: Lang): string {
+  const parts = orderedMeters(meters).map(
+    (meter) => `${meterShortLabel(meter.kind, lang)} ${usedPercent(meter)}%`,
+  );
+  return parts.length > 0 ? `Go ${parts.join(" · ")}` : "";
 }
 
 /**

@@ -16,6 +16,7 @@ export const JA: LocaleBundle = {
   statusBarWindowLabel: "ステータスバーの枠",
   languageLabel: "言語",
   meterAutoLabel: "自動（最も逼迫している枠）",
+  meterAllLabel: "全ての枠",
   openSettingsLabel: "設定を開く",
   reconnectLabel: "workspace を再接続",
 

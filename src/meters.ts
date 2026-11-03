@@ -52,6 +52,20 @@ export function severityOf(meter: UsageMeter): Severity {
   return "ok";
 }
 
+const SEVERITY_RANK: Record<Severity, number> = { ok: 0, warn: 1, critical: 2 };
+
+/** The worst health across several windows — one bar colour has to cover all. */
+export function worstSeverity(meters: UsageMeter[]): Severity {
+  let worst: Severity = "ok";
+  for (const meter of meters) {
+    const severity = severityOf(meter);
+    if (SEVERITY_RANK[severity] > SEVERITY_RANK[worst]) {
+      worst = severity;
+    }
+  }
+  return worst;
+}
+
 /** The meter closest to its limit — what the status bar shows by default. */
 export function mostConstrained(meters: UsageMeter[]): UsageMeter | undefined {
   let best: UsageMeter | undefined;

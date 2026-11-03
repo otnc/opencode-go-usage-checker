@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { formatCountdown, meterLabel, meterShortLabel } from "../format";
+import { formatCountdown, meterLabel, meterShortLabel, statusBarMetersText } from "../format";
 import { Lang, strings } from "../i18n";
 import {
   MeterKind,
@@ -10,12 +10,13 @@ import {
   severityOf,
   UsageMeter,
   usedPercent,
+  worstSeverity,
 } from "../meters";
 import { UsageState } from "../usageStore";
 
 export interface StatusBarConfig {
   enabled: boolean;
-  meter: "auto" | MeterKind;
+  meter: "all" | "auto" | MeterKind;
   lang: Lang;
   consoleUrl: string;
 }
@@ -85,6 +86,19 @@ export class UsageStatusBar implements vscode.Disposable {
   }
 
   private renderReady(meters: UsageMeter[], config: StatusBarConfig): void {
+    if (config.meter === "all") {
+      const text = statusBarMetersText(meters, config.lang);
+      if (!text) {
+        this.item.text = "$(pulse) Go Usage —";
+        this.item.tooltip = strings(config.lang).wsNoPayload;
+        return;
+      }
+      this.item.text = `$(pulse) ${text}`;
+      this.applySeverity(worstSeverity(meters));
+      this.item.tooltip = this.buildTooltip(meters, config);
+      return;
+    }
+
     const primary =
       config.meter === "auto"
         ? mostConstrained(meters)
@@ -100,14 +114,17 @@ export class UsageStatusBar implements vscode.Disposable {
     const short = meterShortLabel(primary.kind, config.lang);
     this.item.text = `$(pulse) Go Usage ${short} ${percent}%`;
 
-    const severity = severityOf(primary);
+    this.applySeverity(severityOf(primary));
+    this.item.tooltip = this.buildTooltip(meters, config);
+  }
+
+  /** One item colour has to cover every window, so it follows the worst of them. */
+  private applySeverity(severity: Severity): void {
     if (severity === "critical") {
       this.item.backgroundColor = new vscode.ThemeColor("statusBarItem.errorBackground");
     } else if (severity === "warn") {
       this.item.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");
     }
-
-    this.item.tooltip = this.buildTooltip(meters, config);
   }
 
   private buildTooltip(meters: UsageMeter[], config: StatusBarConfig): vscode.MarkdownString {

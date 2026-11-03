@@ -174,3 +174,21 @@ test("renders workspace failures as messages in the chosen language", () => {
   assert.equal(f.describeError(new Error("boom"), "en"), "boom");
   assert.equal(f.describeError("boom", "en"), "boom");
 });
+
+test("the status bar summary shows every window in order", () => {
+  assert.equal(f.statusBarMetersText(SAMPLE, "en"), "Go 5h 62% · Week 31% · Month 44%");
+  assert.equal(f.statusBarMetersText(SAMPLE, "ja"), "Go 5時間 62% · 週 31% · 月 44%");
+
+  // Whichever windows the page did report, in the stable display order.
+  assert.equal(f.statusBarMetersText([SAMPLE[1], SAMPLE[0]], "en"), "Go 5h 62% · Week 31%");
+
+  // Nothing to report, nothing to show.
+  assert.equal(f.statusBarMetersText([], "en"), "");
+});
+
+test("the bar colour follows the worst window, not the first one", () => {
+  assert.equal(m.worstSeverity(SAMPLE), "ok");
+  assert.equal(m.worstSeverity([meter("five_hour", 10), meter("calendar_week", 75)]), "warn");
+  assert.equal(m.worstSeverity([meter("five_hour", 10), meter("product_period", 95)]), "critical");
+  assert.equal(m.worstSeverity([]), "ok");
+});

@@ -20,6 +20,7 @@ export interface Strings {
   statusBarWindowLabel: string;
   languageLabel: string;
   meterAutoLabel: string;
+  meterAllLabel: string;
   openSettingsLabel: string;
   reconnectLabel: string;
 

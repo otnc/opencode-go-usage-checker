@@ -17,6 +17,7 @@ export const EN: Strings = {
   statusBarWindowLabel: "Status bar window",
   languageLabel: "Language",
   meterAutoLabel: "Auto (most constrained)",
+  meterAllLabel: "All windows",
   openSettingsLabel: "Open settings",
   reconnectLabel: "Reconnect workspace",
 

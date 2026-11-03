@@ -125,12 +125,14 @@
           "type": "string",
           "default": "five_hour",
           "enum": [
+            "all",
             "auto",
             "five_hour",
             "calendar_week",
             "product_period"
           ],
           "enumDescriptions": [
+            "%config.statusBar.meter.all%",
             "%config.statusBar.meter.auto%",
             "%config.statusBar.meter.fiveHour%",
             "%config.statusBar.meter.calendarWeek%",

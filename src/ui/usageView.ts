@@ -192,6 +192,7 @@ export class UsageViewProvider implements vscode.WebviewViewProvider, vscode.Dis
     const state = this.lastState;
 
     const meterOptions: OptionVM[] = [
+      { value: "all", label: s.meterAllLabel },
       { value: "auto", label: s.meterAutoLabel },
       ...METER_KINDS.map((kind) => ({ value: kind, label: meterLabel(kind, lang) })),
     ];

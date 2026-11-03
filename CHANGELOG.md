@@ -5,6 +5,14 @@ All notable changes to this extension are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- The status bar can show all three windows at once. Set `opencodeGo.statusBar.meter` to `all` and
+  the item reads `Go 5h 62% · Week 31% · Month 44%`. One item colour has to cover every window, so
+  it follows the one closest to its limit. The default (`five_hour`) is unchanged.
+
 ## [0.3.3] - 2026-09-21
 
 ### Fixed

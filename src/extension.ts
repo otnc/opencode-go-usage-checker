@@ -18,7 +18,7 @@ interface Settings {
   refreshIntervalSeconds: number;
   workspaceId: string;
   statusBarEnabled: boolean;
-  statusBarMeter: "auto" | MeterKind;
+  statusBarMeter: "all" | "auto" | MeterKind;
   lang: Lang;
   /** Raw `opencodeGo.language` setting value ("auto" | "en" | "ja" …). */
   languageRaw: string;
